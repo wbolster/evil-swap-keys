@@ -1,6 +1,6 @@
-============================
-evil-swap-numbers-symbols.el
-============================
+=================
+evil-swap-keys.el
+=================
 
 This Emacs package for ``evil-mode`` swaps the numbers and symbols on
 the number key row when entering text. Pressing ``1`` results in
@@ -18,7 +18,7 @@ Installation
 
 Install from Melpa::
 
-  M-x package-install RET evil-swap-numbers-symbols RET
+  M-x package-install RET evil-swap-keys RET
 
 
 Usage
@@ -26,11 +26,11 @@ Usage
 
 To enable the minor mode globally, use::
 
-  (global-evil-swap-numbers-symbols-mode)
+  (global-evil-swap-keys-mode)
 
 To enable for a single buffer only, e.g. from a major mode hook, use::
 
-  (evil-swap-numbers-symbols-mode)
+  (evil-swap-keys-mode)
 
 When enabled, a lighter showing ``!1`` will appear in your mode line.
 
@@ -51,7 +51,7 @@ The defaults assume that your keyboard layout has these number and symbol pairs:
 * ``9`` and ``(``
 * ``0`` and ``)``
 
-For a different layout, change ``evil-swap-numbers-symbols-key-pairs``
+For a different layout, change ``evil-swap-keys-key-pairs``
 by setting it in your ``init.el``. Look at the code for the format. Alternatively, use the Customize interface::
 
-  M-x customize-group RET evil-swap-numbers-symbols RET
+  M-x customize-group RET evil-swap-keys RET
