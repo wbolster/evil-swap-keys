@@ -50,7 +50,40 @@
     (")" . "0"))
   "The keys on the keyboard that should be swapped.  This should match the keyboard layout."
   :group 'evil-swap-keys
-  :type 'alist)
+  :type '(alist
+          :key-type string
+          :value-type string))
+
+(defcustom evil-swap-keys-text-input-states
+  '(emacs insert replace)
+  "Evil states used for text input."
+  :group 'evil-swap-keys
+  :type '(repeat symbol))
+
+(defcustom evil-swap-keys-text-input-commands
+  '(evil-find-char
+    evil-find-char-backward
+    evil-find-char-to
+    evil-find-char-to-backward
+    evil-replace
+
+    ;; evil-surround
+    evil-surround-region
+    evil-Surround-region
+    evil-yank  ;; FIXME
+
+    ;; evil-snipe
+    evil-snipe-f
+    evil-snipe-F
+    evil-snipe-s
+    evil-snipe-S
+    evil-snipe-t
+    evil-snipe-T
+    evil-snipe-x
+    evil-snipe-X)
+  "Commands that read keys which should be considered text input."
+  :group 'evil-swap-keys
+  :type '(repeat function))
 
 ;;;###autoload
 (define-minor-mode evil-swap-keys-mode
