@@ -29,15 +29,25 @@
 
 (defcustom evil-swap-keys-key-pairs
   '(("1" . "!")
+    ("!" . "1")
     ("2" . "@")
+    ("@" . "2")
     ("3" . "#")
+    ("#" . "3")
     ("4" . "$")
+    ("$" . "4")
     ("5" . "%")
+    ("%" . "5")
     ("6" . "^")
+    ("^" . "6")
     ("7" . "&")
+    ("&" . "7")
     ("8" . "*")
+    ("*" . "8")
     ("9" . "(")
-    ("0" . ")"))
+    ("(" . "9")
+    ("0" . ")")
+    (")" . "0"))
   "The keys on the keyboard that should be swapped.  This should match the keyboard layout."
   :group 'evil-swap-keys
   :type 'alist)
@@ -56,12 +66,11 @@
 
 (dolist
     (key-pair evil-swap-keys-key-pairs)
-  (let ((number-value (car key-pair))
-        (symbol-value (cdr key-pair)))
+  (let ((from (car key-pair))
+        (to (cdr key-pair)))
     (evil-define-minor-mode-key
       'insert 'evil-swap-keys-mode
-      number-value (lambda () (interactive) (insert symbol-value))
-      symbol-value (lambda () (interactive) (insert number-value)))))
+      from (lambda () (interactive) (insert to)))))
 
 ;; FIXME: perhaps key-translation-map combined with
 ;; evil-*-state-entry-hook and evil-*-state-exit-hook is a better way
