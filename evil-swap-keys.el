@@ -1,9 +1,9 @@
-;;; evil-swap-keys --- intelligently swap keys on text input with evil -*- lexical-binding: t; -*-
+;;; evil-swap-keys.el --- intelligently swap keys on text input with evil -*- lexical-binding: t; -*-
 
 ;; Author: Wouter Bolsterlee <wouter@bolsterl.ee>
 ;; Version: 1.0.0
 ;; Package-Requires: ((emacs "24") (evil "1.2.12"))
-;; Keywords: evil numbers symbols
+;; Keywords: evil key swap numbers symbols
 ;; URL: https://github.com/wbolster/evil-swap-keys
 ;;
 ;; This file is not part of GNU Emacs.
@@ -14,8 +14,7 @@
 
 ;;; Commentary:
 
-;; This minor mode swaps the behaviour of the numbers and symbols
-;; keyboard row and some other keys, but only when entering text.
+;; Minor mode to intelligently swap keys when entering text.
 ;; See the README for more details.
 
 ;;; Code:
@@ -23,40 +22,43 @@
 (require 'evil)
 
 (defgroup evil-swap-keys nil
-  "Swap the numbers/symbols keyboard row when entering text"
+  "Intelligently swap keys when entering text"
   :prefix "evil-swap-keys-"
   :group 'evil)
 
-(defcustom evil-swap-keys-key-pairs
+(defcustom evil-swap-keys-number-row-keys
   '(("1" . "!")
-    ("!" . "1")
     ("2" . "@")
-    ("@" . "2")
     ("3" . "#")
-    ("#" . "3")
     ("4" . "$")
-    ("$" . "4")
     ("5" . "%")
-    ("%" . "5")
     ("6" . "^")
-    ("^" . "6")
     ("7" . "&")
-    ("&" . "7")
     ("8" . "*")
-    ("*" . "8")
     ("9" . "(")
-    ("(" . "9")
-    ("0" . ")")
-    (")" . "0"))
-  "The keys on the keyboard that should be swapped.  This should match the keyboard layout."
+    ("0" . ")"))
+  "The numbers and symbols on the keyboard's number row.
+
+This should match the actual keyboard layout."
   :group 'evil-swap-keys
   :type '(alist
           :key-type string
           :value-type string))
 
+(defcustom evil-swap-keys-number-row-swapped t
+  "Whether to swap the keys on the number row.
+
+Disable this if the keyboard layout already uses symbols by default
+for the number row, e.g. French AZERTY keyboards."
+  :group 'evil-swap-keys
+  :type 'boolean)
+(make-variable-buffer-local 'evil-swap-keys-number-row-swapped)
+
 (defcustom evil-swap-keys-text-input-states
-  '(emacs insert replace)
-  "Evil states used for text input."
+  '(emacs
+    insert
+    replace)
+  "Evil states in which key presses will be treated as text input."
   :group 'evil-swap-keys
   :type '(repeat symbol))
 
@@ -66,13 +68,6 @@
     evil-find-char-to
     evil-find-char-to-backward
     evil-replace
-
-    ;; evil-surround
-    evil-surround-region
-    evil-Surround-region
-    evil-yank  ;; FIXME
-
-    ;; evil-snipe
     evil-snipe-f
     evil-snipe-F
     evil-snipe-s
@@ -81,44 +76,109 @@
     evil-snipe-T
     evil-snipe-x
     evil-snipe-X)
-  "Commands that read keys which should be considered text input."
+  "Commands that read keys which should be treated as text input."
   :group 'evil-swap-keys
   :type '(repeat function))
 
+(defvar evil-swap-keys--active-mappings nil
+  "Active mappings for this buffer.")
+(make-variable-buffer-local 'evil-swap-keys--active-mappings)
+
+(defvar evil-swap-keys--extra-mappings nil
+  "Extra key mappings in addition to the number row.")
+(make-variable-buffer-local 'evil-swap-keys--extra-mappings)
+
+(defun evil-swap-keys--text-input-p ()
+  "Determine whether the current input should treated as text input."
+  ;; NOTE: The evil-this-type check is a hack that seems to work well
+  ;; for motions. This variable is non-nil while reading motions
+  ;; themselves, but not while entering a (optional) count prefix for
+  ;; those motions. This makes things like d2t@ (delete until the
+  ;; second @ sign) work without using the shift key at all: the first
+  ;; 2 is a count and will not be translated, and the second 2 will be
+  ;; translated into a @ since the 't' motion reads text input.
+  (or
+   evil-this-type
+   (memq evil-state evil-swap-keys-text-input-states)
+   (memq this-command evil-swap-keys-text-input-commands)))
+
+(defun evil-swap-keys--maybe-translate (&optional prompt)
+  "Maybe translate the current input.
+
+The PROMPT argument is ignored; it's only there for compatibility with
+the 'key-translation-map callback signature."
+  (let ((key (string last-input-event)))
+    (when (and evil-swap-keys--active-mappings
+               evil-local-mode
+               (evil-swap-keys--text-input-p))
+      (let ((mapping (assoc key evil-swap-keys--active-mappings)))
+        (when mapping
+          (setq key (cdr mapping)))))
+    key))
+
+(defun evil-swap-keys--enable ()
+  "Enable key swapping in this buffer."
+  (evil-swap-keys--add-bindings))
+
+(defun evil-swap-keys--disable ()
+  "Disable key swapping in this buffer."
+  ;; This does not remove any bindings, since other buffers may also
+  ;; need those bindings.
+  (setq evil-swap-keys--active-mappings nil))
+
+(defun evil-swap-keys--add-bindings ()
+  "Add bindings to the global 'key-translation-map'."
+  (setq evil-swap-keys--active-mappings nil)
+  (when evil-swap-keys-number-row-swapped
+    (dolist (pair evil-swap-keys-number-row-keys)
+      (let ((from (car pair))
+            (to (cdr pair)))
+        (add-to-list 'evil-swap-keys--active-mappings (cons from to))
+        (add-to-list 'evil-swap-keys--active-mappings (cons to from)))))
+  (dolist (mapping evil-swap-keys--extra-mappings)
+    (let ((from (car mapping))
+          (to (cdr mapping)))
+      (add-to-list 'evil-swap-keys--active-mappings (cons from to))))
+  (dolist (mapping evil-swap-keys--active-mappings)
+    (let ((key (car mapping)))
+      ;; Note: key-translation-map is global. The callback uses the
+      ;; local configuration to decide whether the key should be
+      ;; translated.
+      (define-key key-translation-map
+        key #'evil-swap-keys--maybe-translate))))
+
+(defun evil-swap-keys--remove-bindings ()
+  "Remove bindings from the global 'key-translation-map'."
+  (dolist (key (where-is-internal #'evil-swap-keys--maybe-translate
+                                  key-translation-map))
+    (define-key key-translation-map key nil)))
+
 ;;;###autoload
 (define-minor-mode evil-swap-keys-mode
-  "Minor mode to default to symbols for the keyboard's number row."
-  :keymap (make-sparse-keymap)
-  :lighter " !1")
+  "Minor mode to intelligently swap keyboard keys during text input."
+  :group 'evil-swap-keys
+  :lighter " !1"
+  (if evil-swap-keys-mode
+      (evil-swap-keys--enable)
+    (evil-swap-keys--disable)))
 
 ;;;###autoload
 (define-globalized-minor-mode global-evil-swap-keys-mode
   evil-swap-keys-mode
   (lambda () (evil-swap-keys-mode t))
-  "Global minor mode to default to symbols for the keyboard's number row.")
+  "Global minor mode to intelligently swap keyboard keys during text input.")
 
-(dolist
-    (key-pair evil-swap-keys-key-pairs)
-  (let ((from (car key-pair))
-        (to (cdr key-pair)))
-    (evil-define-minor-mode-key
-      'insert 'evil-swap-keys-mode
-      from (lambda () (interactive) (insert to)))))
+;;;###autoload
+(defun evil-swap-keys-add-mapping (from to)
+  "Add a one-way mapping from key FROM to key TO."
+  (add-to-list 'evil-swap-keys--extra-mappings (cons from to))
+  (evil-swap-keys--add-bindings))
 
-;; FIXME: perhaps key-translation-map combined with
-;; evil-*-state-entry-hook and evil-*-state-exit-hook is a better way
-;; to implement this. for things like f and evil-snipe some around
-;; advice may be helpful
-
-;; FIXME: keyboard-translate-table
-
-;; (keyboard-translate ?1 nil)
-;; (keyboard-translate ?! nil)
-;; keyboard-translate-table
-
-;; TODO: on enable, add bindings in key-translation-map; on disable,
-;; remove. the function bound to the keys should check evil-state
-;; swap for anything but 'motion 'normal 'visual
+;;;###autoload
+(defun evil-swap-keys-add-pair (a b)
+  "Add a two-way mapping to swap keys A and B."
+  (evil-swap-keys-add-mapping a b)
+  (evil-swap-keys-add-mapping b a))
 
 ;; TODO: minibuffer text entry. (active-minibuffer-window) perhaps?
 
