@@ -180,6 +180,42 @@ the 'key-translation-map callback signature."
   (evil-swap-keys-add-mapping a b)
   (evil-swap-keys-add-mapping b a))
 
+;;;###autoload
+(defun evil-swap-keys-swap-underscore-dash ()
+  "Swap the underscore and the dash."
+  (evil-swap-keys-add-pair "_" "-"))
+
+;;;###autoload
+(defun evil-swap-keys-swap-colon-semicolon ()
+  "Swap the colon and semicolon."
+  (evil-swap-keys-add-pair ":" ";"))
+
+;;;###autoload
+(defun evil-swap-keys-swap-tilde-backtick ()
+  "Swap the backtick and tilde."
+  (evil-swap-keys-add-pair "~" "`"))
+
+;;;###autoload
+(defun evil-swap-keys-swap-double-single-quotes ()
+  "Swap the double and single quotes."
+  (evil-swap-keys-add-pair "\"" "'"))
+
+;;;###autoload
+(defun evil-swap-keys-swap-square-curly-brackets ()
+  "Swap the square and curly brackets."
+  (evil-swap-keys-add-pair "[" "{")
+  (evil-swap-keys-add-pair "]" "}"))
+
+;;;###autoload
+(defun evil-swap-keys-swap-pipe-backslash ()
+  "Swap the pipe and backslash."
+  (evil-swap-keys-add-pair "|" "\\"))
+
+;;;###autoload
+(defun evil-swap-keys-swap-question-mark-slash ()
+  "Swap the question mark and slash."
+  (evil-swap-keys-add-pair "/" "?"))
+
 ;; TODO: minibuffer text entry. (active-minibuffer-window) perhaps?
 
 (provide 'evil-swap-keys)
