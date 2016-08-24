@@ -99,6 +99,8 @@ for the number row, e.g. French AZERTY keyboards."
   ;; translated into a @ since the 't' motion reads text input.
   (or
    evil-this-type
+   isearch-mode
+   (minibufferp)
    (memq evil-state evil-swap-keys-text-input-states)
    (memq this-command evil-swap-keys-text-input-commands)))
 
@@ -107,14 +109,16 @@ for the number row, e.g. French AZERTY keyboards."
 
 The PROMPT argument is ignored; it's only there for compatibility with
 the 'key-translation-map callback signature."
-  (let ((key (string last-input-event)))
-    (when (and evil-swap-keys--active-mappings
-               evil-local-mode
-               (evil-swap-keys--text-input-p))
-      (let ((mapping (assoc key evil-swap-keys--active-mappings)))
-        (when mapping
-          (setq key (cdr mapping)))))
-    key))
+  ;; Note: a nil return value implies no key translation.
+  (let* ((key (string last-input-event))
+         (buffer (if (minibufferp)
+                     (window-buffer (minibuffer-selected-window))
+                   (current-buffer)))
+         (active-mappings (buffer-local-value 'evil-swap-keys--active-mappings buffer))
+         (should-translate (and (buffer-local-value 'evil-local-mode buffer)
+                                (evil-swap-keys--text-input-p)))
+         (replacement (cdr (assoc key active-mappings))))
+    (when should-translate replacement)))
 
 (defun evil-swap-keys--enable ()
   "Enable key swapping in this buffer."
@@ -215,8 +219,6 @@ the 'key-translation-map callback signature."
 (defun evil-swap-keys-swap-question-mark-slash ()
   "Swap the question mark and slash."
   (evil-swap-keys-add-pair "/" "?"))
-
-;; TODO: minibuffer text entry. (active-minibuffer-window) perhaps?
 
 (provide 'evil-swap-keys)
 ;;; evil-swap-keys.el ends here
