@@ -45,15 +45,6 @@ This should match the actual keyboard layout."
           :key-type string
           :value-type string))
 
-(defcustom evil-swap-keys-number-row-swapped t
-  "Whether to swap the keys on the number row.
-
-Disable this if the keyboard layout already uses symbols by default
-for the number row, e.g. French AZERTY keyboards."
-  :group 'evil-swap-keys
-  :type 'boolean)
-(make-variable-buffer-local 'evil-swap-keys-number-row-swapped)
-
 (defcustom evil-swap-keys-text-input-states
   '(emacs
     insert
@@ -80,13 +71,9 @@ for the number row, e.g. French AZERTY keyboards."
   :group 'evil-swap-keys
   :type '(repeat function))
 
-(defvar evil-swap-keys--active-mappings nil
+(defvar evil-swap-keys--mappings nil
   "Active mappings for this buffer.")
-(make-variable-buffer-local 'evil-swap-keys--active-mappings)
-
-(defvar evil-swap-keys--extra-mappings nil
-  "Extra key mappings in addition to the number row.")
-(make-variable-buffer-local 'evil-swap-keys--extra-mappings)
+(make-variable-buffer-local 'evil-swap-keys--mappings)
 
 (defun evil-swap-keys--text-input-p ()
   "Determine whether the current input should treated as text input."
@@ -110,47 +97,30 @@ for the number row, e.g. French AZERTY keyboards."
 
 The PROMPT argument is ignored; it's only there for compatibility with
 the 'key-translation-map callback signature."
-  ;; Note: a nil return value implies no key translation.
+  ;; This callback uses the local configuration to decide whether the
+  ;; key should be translated, and if so, determine the replacement.
+  ;; A nil return value implies no key translation takes place.
   (let* ((key (string last-input-event))
          (buffer (if (minibufferp)
                      (window-buffer (minibuffer-selected-window))
                    (current-buffer)))
-         (active-mappings (buffer-local-value 'evil-swap-keys--active-mappings buffer))
-         (should-translate (and (buffer-local-value 'evil-local-mode buffer)
+         (mappings (buffer-local-value 'evil-swap-keys--mappings buffer))
+         (should-translate (and (buffer-local-value 'evil-swap-keys-mode buffer)
+                                (buffer-local-value 'evil-local-mode buffer)
                                 (evil-swap-keys--text-input-p)))
-         (replacement (cdr (assoc key active-mappings))))
+         (replacement (cdr (assoc key mappings))))
     (when should-translate replacement)))
-
-(defun evil-swap-keys--enable ()
-  "Enable key swapping in this buffer."
-  (evil-swap-keys--add-bindings))
-
-(defun evil-swap-keys--disable ()
-  "Disable key swapping in this buffer."
-  ;; This does not remove any bindings, since other buffers may also
-  ;; need those bindings.
-  (setq evil-swap-keys--active-mappings nil))
 
 (defun evil-swap-keys--add-bindings ()
   "Add bindings to the global 'key-translation-map'."
-  (setq evil-swap-keys--active-mappings nil)
-  (when evil-swap-keys-number-row-swapped
-    (dolist (pair evil-swap-keys-number-row-keys)
-      (let ((from (car pair))
-            (to (cdr pair)))
-        (add-to-list 'evil-swap-keys--active-mappings (cons from to))
-        (add-to-list 'evil-swap-keys--active-mappings (cons to from)))))
-  (dolist (mapping evil-swap-keys--extra-mappings)
-    (let ((from (car mapping))
-          (to (cdr mapping)))
-      (add-to-list 'evil-swap-keys--active-mappings (cons from to))))
-  (dolist (mapping evil-swap-keys--active-mappings)
-    (let ((key (car mapping)))
-      ;; Note: key-translation-map is global. The callback uses the
-      ;; local configuration to decide whether the key should be
-      ;; translated.
-      (define-key key-translation-map
-        key #'evil-swap-keys--maybe-translate))))
+  ;; Note: key-translation-map is global. Enabling key swapping in a
+  ;; buffer only adds bindings to this global map. Other buffers (with
+  ;; possibly different configurations) may have added these bindings
+  ;; already, which is not a problem because define-key is idempotent.
+  (dolist (mapping evil-swap-keys--mappings)
+    (define-key key-translation-map
+      (car mapping)
+      #'evil-swap-keys--maybe-translate)))
 
 (defun evil-swap-keys--remove-bindings ()
   "Remove bindings from the global 'key-translation-map'."
@@ -163,9 +133,8 @@ the 'key-translation-map callback signature."
   "Minor mode to intelligently swap keyboard keys during text input."
   :group 'evil-swap-keys
   :lighter " !1"
-  (if evil-swap-keys-mode
-      (evil-swap-keys--enable)
-    (evil-swap-keys--disable)))
+  (when evil-swap-keys-mode
+      (evil-swap-keys--add-bindings)))
 
 ;;;###autoload
 (define-globalized-minor-mode global-evil-swap-keys-mode
@@ -176,7 +145,7 @@ the 'key-translation-map callback signature."
 ;;;###autoload
 (defun evil-swap-keys-add-mapping (from to)
   "Add a one-way mapping from key FROM to key TO."
-  (add-to-list 'evil-swap-keys--extra-mappings (cons from to))
+  (add-to-list 'evil-swap-keys--mappings (cons from to))
   (evil-swap-keys--add-bindings))
 
 ;;;###autoload
@@ -184,6 +153,11 @@ the 'key-translation-map callback signature."
   "Add a two-way mapping to swap keys A and B."
   (evil-swap-keys-add-mapping a b)
   (evil-swap-keys-add-mapping b a))
+
+;;;###autoload
+(defun evil-swap-keys-swap-number-row ()
+  "Swap the keys on the number row."
+  (map-apply #'evil-swap-keys-add-pair evil-swap-keys-number-row-keys))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-underscore-dash ()
