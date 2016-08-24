@@ -91,14 +91,15 @@ for the number row, e.g. French AZERTY keyboards."
 (defun evil-swap-keys--text-input-p ()
   "Determine whether the current input should treated as text input."
   ;; NOTE: The evil-this-type check is a hack that seems to work well
-  ;; for motions. This variable is non-nil while reading motions
-  ;; themselves, but not while entering a (optional) count prefix for
-  ;; those motions. This makes things like d2t@ (delete until the
-  ;; second @ sign) work without using the shift key at all: the first
-  ;; 2 is a count and will not be translated, and the second 2 will be
-  ;; translated into a @ since the 't' motion reads text input.
+  ;; for motions in operator mode. This variable is non-nil while
+  ;; reading motions themselves, but not while entering a (optional)
+  ;; count prefix for those motions. This makes things like d2t@
+  ;; (delete until the second @ sign) work without using the shift key
+  ;; at all: the first 2 is a count and will not be translated, and
+  ;; the second 2 will be translated into a @ since the 't' motion
+  ;; reads text input.
   (or
-   evil-this-type
+   (and (eq evil-state 'operator) evil-this-type)
    isearch-mode
    (minibufferp)
    (memq evil-state evil-swap-keys-text-input-states)
