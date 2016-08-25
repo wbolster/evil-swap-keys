@@ -157,7 +157,7 @@ the 'key-translation-map callback signature."
 ;;;###autoload
 (defun evil-swap-keys-swap-number-row ()
   "Swap the keys on the number row."
-  (map-apply #'evil-swap-keys-add-pair evil-swap-keys-number-row-keys))
+  (mapcar (lambda (keys) (evil-swap-keys-add-pair (car keys) (cdr keys))) evil-swap-keys-number-row-keys))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-underscore-dash ()
