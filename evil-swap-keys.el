@@ -146,7 +146,7 @@ the 'key-translation-map callback signature."
 (defun evil-swap-keys-add-mapping (from to)
   "Add a one-way mapping from key FROM to key TO."
   (add-to-list 'evil-swap-keys--mappings (cons from to))
-  (evil-swap-keys--add-bindings))
+  (evil-swap-keys-mode t))
 
 ;;;###autoload
 (defun evil-swap-keys-add-pair (a b)
