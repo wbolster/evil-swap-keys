@@ -149,10 +149,10 @@ the 'key-translation-map callback signature."
   (evil-swap-keys-mode t))
 
 ;;;###autoload
-(defun evil-swap-keys-add-pair (a b)
-  "Add a two-way mapping to swap keys A and B."
-  (evil-swap-keys-add-mapping a b)
-  (evil-swap-keys-add-mapping b a))
+(defun evil-swap-keys-add-pair (FROM TO)
+  "Add a two-way mapping to swap keys FROM and TO."
+  (evil-swap-keys-add-mapping FROM TO)
+  (evil-swap-keys-add-mapping TO FROM))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-number-row ()
