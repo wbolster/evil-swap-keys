@@ -98,7 +98,7 @@ This is best explained using a few examples:
 
 * Example 3: normal text
 
-  In normal prose, question marks are more common then slashes:
+  In normal prose, question marks are more common than slashes:
 
   .. code-block:: elisp
 
