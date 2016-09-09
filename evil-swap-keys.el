@@ -59,6 +59,8 @@ This should match the actual keyboard layout."
     evil-find-char-to
     evil-find-char-to-backward
     evil-replace
+
+    ;; third-party packages
     evil-snipe-f
     evil-snipe-F
     evil-snipe-s
@@ -70,6 +72,55 @@ This should match the actual keyboard layout."
   "Commands that read keys which should be treated as text input."
   :group 'evil-swap-keys
   :type '(repeat function))
+
+(defcustom evil-swap-keys-elisp-input-commands
+  '(customize-face
+    customize-variable
+    customize-variable-other-window
+    describe-face
+    describe-function
+    describe-symbol
+    describe-variable
+    eval-expression
+    execute-extended-command
+
+    ;; third-party packages
+    counsel-M-x
+    counsel-descbinds
+    counsel-describe-face
+    counsel-describe-function
+    counsel-describe-variable
+    counsel-set-variable)
+  "Commands that read elisp identifiers.  A remapped hyphen (minus) will be ignored here."
+  :group 'evil-swap-keys
+  :type '(repeat function))
+
+(defcustom evil-swap-keys-file-input-commands
+  '(find-file
+    find-file-at-point
+    find-file-other-frame
+    find-file-other-window
+    find-file-read-only
+    find-file-read-only-other-frame
+    find-file-read-only-other-window
+
+    ;; third-party packages
+    counsel-find-file
+    counsel-find-file-extern
+    projectile-find-dir
+    projectile-find-dir-other-window
+    projectile-find-file
+    projectile-find-file-in-directory
+    projectile-find-file-other-window)
+  "Commands that read file names.  A remapped slash will be ignored here."
+  :group 'evil-swap-keys
+  :type '(repeat function))
+
+(defvar evil-swap-keys--elisp-input-active nil
+  "Flag indicating whether command name input is active.")
+
+(defvar evil-swap-keys--file-input-active nil
+  "Flag indicating whether file name input is active.")
 
 (defvar evil-swap-keys--mappings nil
   "Active mappings for this buffer.")
@@ -92,6 +143,30 @@ This should match the actual keyboard layout."
    (memq evil-state evil-swap-keys-text-input-states)
    (memq this-command evil-swap-keys-text-input-commands)))
 
+(defun evil-swap-keys--pre-command-hook ()
+  "Pre-command hook to set some internal flags."
+  (unless (minibufferp)
+    (cond
+     ((eq this-command 'self-insert-command))
+     ((memq this-command evil-swap-keys-file-input-commands)
+      (setq evil-swap-keys--file-input-active t))
+     ((memq this-command evil-swap-keys-elisp-input-commands)
+      (setq evil-swap-keys--elisp-input-active t))
+     (t
+      (setq
+       evil-swap-keys--elisp-input-active nil
+       evil-swap-keys--file-input-active nil)))))
+
+(defun evil-swap-keys--elisp-input-around-advice (fn &rest args)
+  "Helper to call FN with ARGS, and set a 'reading elisp' flag."
+  (let ((evil-swap-keys--elisp-input-active t))
+    (apply fn args)))
+
+(defun evil-swap-keys--file-input-around-advice (fn &rest args)
+  "Helper to call FN with ARGS, and set a 'reading file name' flag."
+  (let ((evil-swap-keys--file-input-active t))
+    (apply fn args)))
+
 (defun evil-swap-keys--maybe-translate (&optional prompt)
   "Maybe translate the current input.
 
@@ -109,6 +184,10 @@ the 'key-translation-map callback signature."
                                 (buffer-local-value 'evil-local-mode buffer)
                                 (evil-swap-keys--text-input-p)))
          (replacement (cdr (assoc key mappings))))
+    (when (and evil-swap-keys--file-input-active (member "/" (list key replacement)))
+      (setq should-translate nil))  ;; special case for file names
+    (when (and evil-swap-keys--elisp-input-active (member "-" (list key replacement)))
+      (setq should-translate nil))  ;; special case for elisp names
     (when should-translate replacement)))
 
 (defun evil-swap-keys--add-bindings ()
@@ -128,13 +207,27 @@ the 'key-translation-map callback signature."
                                   key-translation-map))
     (define-key key-translation-map key nil)))
 
+(defun evil-swap-keys--add-advice ()
+  "Add advice around various functions that require instrumenting."
+  (dolist (fn evil-swap-keys-elisp-input-commands)
+    (advice-add fn :around 'evil-swap-keys--elisp-input-around-advice))
+  (dolist (fn evil-swap-keys-file-input-commands)
+    (advice-add fn :around 'evil-swap-keys--file-input-around-advice)))
+
+(defun evil-swap-keys--remove-advice ()
+  "Remove previously added advices."
+  (dolist (fn evil-swap-keys-file-input-commands)
+    (advice-remove fn 'evil-swap-keys--file-input-around-advice)))
+
 ;;;###autoload
 (define-minor-mode evil-swap-keys-mode
   "Minor mode to intelligently swap keyboard keys during text input."
   :group 'evil-swap-keys
   :lighter " !1"
   (when evil-swap-keys-mode
-      (evil-swap-keys--add-bindings)))
+    (evil-swap-keys--add-bindings)
+    (evil-swap-keys--add-advice)
+    (add-hook 'pre-command-hook 'evil-swap-keys--pre-command-hook)))
 
 ;;;###autoload
 (define-globalized-minor-mode global-evil-swap-keys-mode
