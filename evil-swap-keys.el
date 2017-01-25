@@ -252,43 +252,51 @@ the 'key-translation-map callback signature."
 ;;;###autoload
 (defun evil-swap-keys-swap-number-row ()
   "Swap the keys on the number row."
+  (interactive)
   (dolist (pair evil-swap-keys-number-row-keys)
     (evil-swap-keys-add-pair (car pair) (cdr pair))))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-underscore-dash ()
   "Swap the underscore and the dash."
+  (interactive)
   (evil-swap-keys-add-pair "_" "-"))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-colon-semicolon ()
   "Swap the colon and semicolon."
+  (interactive)
   (evil-swap-keys-add-pair ":" ";"))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-tilde-backtick ()
   "Swap the backtick and tilde."
+  (interactive)
   (evil-swap-keys-add-pair "~" "`"))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-double-single-quotes ()
   "Swap the double and single quotes."
+  (interactive)
   (evil-swap-keys-add-pair "\"" "'"))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-square-curly-brackets ()
   "Swap the square and curly brackets."
+  (interactive)
   (evil-swap-keys-add-pair "[" "{")
   (evil-swap-keys-add-pair "]" "}"))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-pipe-backslash ()
   "Swap the pipe and backslash."
+  (interactive)
   (evil-swap-keys-add-pair "|" "\\"))
 
 ;;;###autoload
 (defun evil-swap-keys-swap-question-mark-slash ()
   "Swap the question mark and slash."
+  (interactive)
   (evil-swap-keys-add-pair "/" "?"))
 
 (provide 'evil-swap-keys)
