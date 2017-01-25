@@ -68,7 +68,9 @@ This should match the actual keyboard layout."
     evil-snipe-t
     evil-snipe-T
     evil-snipe-x
-    evil-snipe-X)
+    evil-snipe-X
+    evil-surround-region
+    evil-Surround-region)
   "Commands that read keys which should be treated as text input."
   :group 'evil-swap-keys
   :type '(repeat function))
