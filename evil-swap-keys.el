@@ -113,6 +113,7 @@ This should match the actual keyboard layout."
     projectile-find-dir-other-window
     projectile-find-file
     projectile-find-file-in-directory
+    projectile-find-file-in-known-projects
     projectile-find-file-other-window)
   "Commands that read file names.  A remapped slash will be ignored here."
   :group 'evil-swap-keys
