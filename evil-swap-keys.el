@@ -100,6 +100,8 @@ This should match the actual keyboard layout."
 (defcustom evil-swap-keys-file-input-commands
   '(find-file
     find-file-at-point
+    find-file-literally
+    find-file-literally-at-point
     find-file-other-frame
     find-file-other-window
     find-file-read-only
