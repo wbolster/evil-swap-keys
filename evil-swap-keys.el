@@ -2,7 +2,7 @@
 
 ;; Author: Wouter Bolsterlee <wouter@bolsterl.ee>
 ;; Version: 1.0.0
-;; Package-Requires: ((emacs "24") (evil "1.2.12"))
+;; Package-Requires: ((emacs "24"))
 ;; Keywords: evil key swap numbers symbols
 ;; URL: https://github.com/wbolster/evil-swap-keys
 ;;
@@ -18,8 +18,6 @@
 ;; See the README for more details.
 
 ;;; Code:
-
-(require 'evil)
 
 (defgroup evil-swap-keys nil
   "Intelligently swap keys when entering text"
@@ -131,7 +129,7 @@ This should match the actual keyboard layout."
   "Active mappings for this buffer.")
 (make-variable-buffer-local 'evil-swap-keys--mappings)
 
-(defun evil-swap-keys--text-input-p ()
+(defun evil-swap-keys--text-input-p (buffer)
   "Determine whether the current input should treated as text input."
   ;; NOTE: The evil-this-type check is a hack that seems to work well
   ;; for motions in operator mode. This variable is non-nil while
@@ -141,12 +139,16 @@ This should match the actual keyboard layout."
   ;; at all: the first 2 is a count and will not be translated, and
   ;; the second 2 will be translated into a @ since the 't' motion
   ;; reads text input.
-  (or
-   (and (eq evil-state 'operator) evil-this-type)
-   isearch-mode
-   (minibufferp)
-   (memq evil-state evil-swap-keys-text-input-states)
-   (memq this-command evil-swap-keys-text-input-commands)))
+  (if (and (boundp 'evil-mode)
+           (buffer-local-value 'evil-local-mode buffer))
+      (or
+       (and (eq evil-state 'operator) evil-this-type)
+       isearch-mode
+       (minibufferp)
+       (memq evil-state evil-swap-keys-text-input-states)
+       (memq this-command evil-swap-keys-text-input-commands))
+    ;; when evil is not loaded (or inactive), treat everything as text input
+    t))
 
 (defun evil-swap-keys--pre-command-hook ()
   "Pre-command hook to set some internal flags."
@@ -185,9 +187,9 @@ the 'key-translation-map callback signature."
                      (window-buffer (minibuffer-selected-window))
                    (current-buffer)))
          (mappings (buffer-local-value 'evil-swap-keys--mappings buffer))
-         (should-translate (and (buffer-local-value 'evil-swap-keys-mode buffer)
-                                (buffer-local-value 'evil-local-mode buffer)
-                                (evil-swap-keys--text-input-p)))
+         (should-translate
+          (and (buffer-local-value 'evil-swap-keys-mode buffer)
+               (evil-swap-keys--text-input-p buffer)))
          (replacement (cdr (assoc key mappings))))
     (when (and evil-swap-keys--file-input-active (member "/" (list key replacement)))
       (setq should-translate nil))  ;; special case for file names
