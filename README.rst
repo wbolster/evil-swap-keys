@@ -114,54 +114,67 @@ This is best explained using a few examples:
 Overview of standard swaps
 ==========================
 
-The available swaps for use in hooks are listed below:
+The available swaps are listed below.
+These are intended for for use in major-mode hooks,
+but can also be used interactively (via `M-x`)
+for easy experimentation.
 
-* ``(defun evil-swap-keys-swap-number-row)``
+* ``(evil-swap-keys-swap-number-row)``
 
-  Swap the numbers and symbols on the number row of the keyboard.
-  Useful for many programming languages. This uses the
+  Swap the numbers (`1`, `2`, `3`, …) and symbols (`!`, `@`, `#`, …)
+  on the number row of the keyboard.
+  Useful for many programming languages.
+  This uses the
   ``evil-swap-keys-number-row-keys`` configuration variable.
 
-  This is not needed if the keyboard layout already uses symbols by
-  default for the number row, e.g. French AZERTY keyboards.
+  Note that these swaps are not needed
+  if the keyboard layout already uses symbols for the number row,
+  e.g. French AZERTY keyboards.
 
 * ``(evil-swap-keys-swap-underscore-dash)``
 
-  Swap the underscore and the dash. Useful for Python and other
-  languages that use underscores for variable and function names.
+  Swap the underscore (`_`) and the hyphen/dash/minus (`-`).
+  Useful for Python and other languages
+  that use underscores for variable and function names.
 
 * ``(evil-swap-keys-swap-colon-semicolon)``
 
-  Swap the colon and semicolon. Useful for Python which uses colons
-  before an indented block, and almost never uses semicolons.
+  Swap the colon (`:`) and semicolon (`;`).
+  Useful for Python, JSON, and other languages
+  that use more colons than semicolons.
 
 * ``(evil-swap-keys-swap-tilde-backtick)``
 
-  Swap the backtick and tilde. Useful for C++ which uses tildes for
-  destructors.
+  Swap the backtick (`\``) and tilde (`~`).
+  Useful for C++ which uses tildes for destructors.
 
 * ``(evil-swap-keys-swap-double-single-quotes)``
 
-  Swap the double and single quotes. Useful for C-like languages,
-  since typing strings is more common than typing individual
-  characters.
+  Swap the double (`"`) and single (`'`) quotes.
+  Useful for C-like languages,
+  since typing strings is more common
+  than typing individual characters.
 
 * ``(evil-swap-keys-swap-square-curly-brackets)``
 
-  Swap the square and curly brackets. Useful for C-like languages and
-  other languages that use curly brackets as block delimiters, which
-  are used more often than array indexing with square brackets.
+  Swap the square (`[` and `]`) and curly (`{` and `}`) brackets.
+  Useful for C-like languages and other languages
+  that use curly brackets as block delimiters,
+  which are used more often
+  than array indexing with square brackets.
 
 * ``(evil-swap-keys-swap-pipe-backslash)``
 
-  Swap the pipe and backslash. Useful for shell scripts, which use
-  pipes (chaining commands) more often than backslashes (continuation
-  lines).
+  Swap the pipe (`|`) and backslash (`\\`).
+  Useful for shell scripts, which use pipes (chaining commands)
+  more often than backslashes (continuation lines).
 
 * ``(evil-swap-keys-swap-question-mark-slash)``
 
-  Swap the question mark and slash. Useful for regular text, since the
-  former is much more common in prose, don’t you think?
+  Swap the question mark (`?`) and slash (`/`).
+  Useful for regular text,
+  since the former is much more common in prose,
+  don’t you think?
 
 
 Customisation
