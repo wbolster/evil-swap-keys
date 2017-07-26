@@ -2,26 +2,21 @@
 evil-swap-keys.el
 =================
 
-This `Emacs <https://www.gnu.org/software/emacs/>`_ package is an
-extension to `evil <https://bitbucket.org/lyro/evil/>`_, the
-extensible vi layer, to intelligently swap keys when entering text.
+This `Emacs <https://www.gnu.org/software/emacs/>`_ package
+makes it easy to intelligently swap keyboard keys
+when entering text.
+The main use case is
+to change the number row on the keyboard (1, 2, 3, 4, …)
+to produce symbols (!, @, #, $, …) without using the shift key,
+which is useful for programming,
+but it can also swap other keys.
 
-The main use case is to change the number row on the keyboard to
-produce symbols without using the shift key, which is useful for
-programming, but it can swap other keys as well.
+As the name suggests, this package integrates well with
+`evil <https://bitbucket.org/lyro/evil/>`_,
+the extensible vi layer,
+but it can also be used with vanilla Emacs.
 
 ``evil-swap-keys`` is intelligent and flexible:
-
-* Keys are only swapped when entering text, not when entering
-  commands.
-
-  When entering commands, the keys on the number row behave as
-  numbers, so that commands like ``5j`` to move 5 lines down do not
-  require the use of the shift key either. Commands that read keys
-  when not in insert state, such as ``evil-find-char`` and
-  ``evil-find-char-to`` (bound to ``f`` and ``t`` by default), will
-  also have the configured key swaps applied. It even works with
-  `evil-snipe <https://github.com/hlissner/evil-snipe>`_.
 
 * Configuration is buffer-local.
 
@@ -30,10 +25,21 @@ programming, but it can swap other keys as well.
 
 * Input related to a buffer uses the buffer’s configuration.
 
-  Key swapping also works when entering text outside the main buffer
-  contents, such as search terms (``isearch``), or for text typed into
-  the minibuffer, such as `swiper
-  <https://github.com/abo-abo/swiper>`_.
+  Key swapping also works when entering text
+  outside the main buffer contents,
+  such as when entering text in the minibuffer
+  (``isearch``, `swiper <https://github.com/abo-abo/swiper>`_, …).
+
+* Keys are only swapped when entering text, not when entering
+  commands. (This is evil-specific behaviour.)
+
+  When entering commands, the keys on the number row behave as
+  numbers, so that commands like ``5j`` to move 5 lines down do not
+  require the use of the shift key either. Commands that read keys
+  when not in insert state, such as ``evil-find-char`` and
+  ``evil-find-char-to`` (bound to ``f`` and ``t`` by default), will
+  also have the configured key swaps applied. It even works with
+  `evil-snipe <https://github.com/hlissner/evil-snipe>`_.
 
 
 Installation
