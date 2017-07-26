@@ -172,7 +172,7 @@ This should match the actual keyboard layout."
   (let ((evil-swap-keys--file-input-active t))
     (apply fn args)))
 
-(defun evil-swap-keys--maybe-translate (&optional prompt)
+(defun evil-swap-keys--maybe-translate (&optional _prompt)
   "Maybe translate the current input.
 
 The PROMPT argument is ignored; it's only there for compatibility with
