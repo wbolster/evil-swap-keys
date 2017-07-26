@@ -10,7 +10,7 @@
 
 ;;; License:
 
-;; Licensed under the same terms as Emacs.
+;; 3-clause "new bsd"; see readme for details.
 
 ;;; Commentary:
 
