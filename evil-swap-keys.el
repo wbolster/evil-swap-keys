@@ -2,7 +2,7 @@
 
 ;; Author: Wouter Bolsterlee <wouter@bolsterl.ee>
 ;; Version: 1.0.0
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24.4"))
 ;; Keywords: convenience data languages tools
 ;; URL: https://github.com/wbolster/evil-swap-keys
 ;;
