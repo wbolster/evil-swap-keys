@@ -129,6 +129,9 @@ This should match the actual keyboard layout."
   "Active mappings for this buffer.")
 (make-variable-buffer-local 'evil-swap-keys--mappings)
 
+(defvar evil-state)
+(defvar evil-this-type)
+
 (defun evil-swap-keys--text-input-p (buffer)
   "Determine whether the current input for BUFFER should treated as text input."
   ;; NOTE: The evil-this-type check is a hack that seems to work well
