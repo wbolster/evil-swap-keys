@@ -20,7 +20,7 @@
 ;;; Code:
 
 (defgroup evil-swap-keys nil
-  "Intelligently swap keys when entering text"
+  "Intelligently swap keys when entering text."
   :prefix "evil-swap-keys-"
   :group 'evil)
 
@@ -91,7 +91,7 @@ This should match the actual keyboard layout."
     counsel-describe-function
     counsel-describe-variable
     counsel-set-variable)
-  "Commands that read elisp identifiers.  A remapped hyphen (minus) will be ignored here."
+  "Commands that read elisp identifiers. This ignores a remapped hyphen (minus)."
   :group 'evil-swap-keys
   :type '(repeat function))
 
@@ -168,12 +168,12 @@ This should match the actual keyboard layout."
        evil-swap-keys--file-input-active nil)))))
 
 (defun evil-swap-keys--elisp-input-around-advice (fn &rest args)
-  "Helper to call FN with ARGS, and set a 'reading elisp' flag."
+  "Helper to call FN with ARGS, and set a ‘reading elisp’ flag."
   (let ((evil-swap-keys--elisp-input-active t))
     (apply fn args)))
 
 (defun evil-swap-keys--file-input-around-advice (fn &rest args)
-  "Helper to call FN with ARGS, and set a 'reading file name' flag."
+  "Helper to call FN with ARGS, and set a ‘reading file name’ flag."
   (let ((evil-swap-keys--file-input-active t))
     (apply fn args)))
 
@@ -181,7 +181,7 @@ This should match the actual keyboard layout."
   "Maybe translate the current input.
 
 The PROMPT argument is ignored; it's only there for compatibility with
-the 'key-translation-map callback signature."
+the ‘key-translation-map’ callback signature."
   ;; This callback uses the local configuration to decide whether the
   ;; key should be translated, and if so, determine the replacement.
   ;; A nil return value implies no key translation takes place.
@@ -201,7 +201,7 @@ the 'key-translation-map callback signature."
     (when should-translate replacement)))
 
 (defun evil-swap-keys--add-bindings ()
-  "Add bindings to the global 'key-translation-map'."
+  "Add bindings to the global ‘key-translation-map’."
   ;; Note: key-translation-map is global. Enabling key swapping in a
   ;; buffer only adds bindings to this global map. Other buffers (with
   ;; possibly different configurations) may have added these bindings
@@ -212,7 +212,7 @@ the 'key-translation-map callback signature."
       #'evil-swap-keys--maybe-translate)))
 
 (defun evil-swap-keys--remove-bindings ()
-  "Remove bindings from the global 'key-translation-map'."
+  "Remove bindings from the global ‘key-translation-map’."
   (dolist (key (where-is-internal #'evil-swap-keys--maybe-translate
                                   key-translation-map))
     (define-key key-translation-map key nil)))
