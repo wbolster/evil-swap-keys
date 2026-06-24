@@ -203,6 +203,9 @@ To change the mode line lighter, change ``evil-swap-keys-mode-line-lighter`` to
 your liking. The lighter is only shown when there are active swaps, so the
 usual ``(use-package :delight " custom-lighter")`` approach won't suffice.
 
+There are various other customizable variables, e.g. lists of low-level
+commands that require special treatment.
+
 If the swaps provided by default do not suit your needs, e.g. because
 you use a different keyboard layout, or because you want
 non-symmetrical key swaps, you can use these lower level functions:
