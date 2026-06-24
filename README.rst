@@ -69,7 +69,7 @@ Even better, enable it by default by adding it to your ``init.el``:
   (evil-mode)
   (global-evil-swap-keys-mode)
 
-When enabled, ``!1`` will appear in the mode line.
+When enabled, ``!1`` will appear in the mode line and there are active swaps.
 
 Now that the mode is enabled, you can configure how it should behave.
 As noted before, this package does not automatically change keyboard
@@ -198,6 +198,10 @@ For a different layout, change ``evil-swap-keys-number-row-keys``,
 e.g. by using the Customize interface::
 
   M-x customize-group RET evil-swap-keys RET
+
+To change the mode line lighter, change ``evil-swap-keys-mode-line-lighter`` to
+your liking. The lighter is only shown when there are active swaps, so the
+usual ``(use-package :delight " custom-lighter")`` approach won't suffice.
 
 If the swaps provided by default do not suit your needs, e.g. because
 you use a different keyboard layout, or because you want

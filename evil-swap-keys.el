@@ -119,6 +119,11 @@ This should match the actual keyboard layout."
   :group 'evil-swap-keys
   :type '(repeat function))
 
+(defcustom evil-swap-keys-mode-line-lighter " !1"
+  "The mode line lighter, only shown when there is at least one remapping."
+  :group 'evil-swap-keys
+  :type 'string)
+
 (defvar evil-swap-keys--elisp-input-active nil
   "Flag indicating whether command name input is active.")
 
@@ -233,7 +238,7 @@ the ‘key-translation-map’ callback signature."
 (define-minor-mode evil-swap-keys-mode
   "Minor mode to intelligently swap keyboard keys during text input."
   :group 'evil-swap-keys
-  :lighter " !1"
+  :lighter (:eval (when evil-swap-keys--mappings evil-swap-keys-mode-line-lighter))
   (when evil-swap-keys-mode
     (evil-swap-keys--add-bindings)
     (evil-swap-keys--add-advice)
